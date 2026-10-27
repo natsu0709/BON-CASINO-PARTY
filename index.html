@@ -1989,6 +1989,11 @@ button.ttl-item:active { transform: scale(.97); }
 /* 演出で画面を揺らしたときに、横にスクロールできてしまわないように（clip はスクロールの仕組みを変えないので上のバーの固定はそのまま） */
 html, body { overflow-x: clip; }
 
+/* 称号：まだ持っていない称号の進み具合 */
+.ttl-prog { display: block; width: 86%; height: 5px; border-radius: 3px; background: #1a1622; overflow: hidden; margin-top: 2px; }
+.ttl-prog i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, #6b5a9a, #a989ff); }
+.ttl-num { font-size: 11px; font-weight: 800; color: #9a8fbf; font-variant-numeric: tabular-nums; }
+
 </style>
 </head>
 <body>
@@ -8830,62 +8835,72 @@ const Titles = (() => {
 
   // 1人プレイの回数でもらえる3段階（ビギナー・マニア・マスター）
   const tiers = (g, label, unit = '回') => [
-    { id: g + '1', name: label + 'ビギナー', color: 'green', hint: `1人プレイで${label}を10${unit}遊ぶ`, ok: d => P(d, g) >= 10 },
-    { id: g + '2', name: label + 'マニア', color: 'blue', hint: `1人プレイで${label}を50${unit}遊ぶ`, ok: d => P(d, g) >= 50 },
-    { id: g + '3', name: label + 'マスター', color: 'red', hint: `1人プレイで${label}を100${unit}遊ぶ`, ok: d => P(d, g) >= 100 },
+    { id: g + '1', name: label + 'ビギナー', color: 'green', hint: `1人プレイで${label}を10${unit}遊ぶ`, cur: d => P(d, g), goal: 10 },
+    { id: g + '2', name: label + 'マニア', color: 'blue', hint: `1人プレイで${label}を50${unit}遊ぶ`, cur: d => P(d, g), goal: 50 },
+    { id: g + '3', name: label + 'マスター', color: 'red', hint: `1人プレイで${label}を100${unit}遊ぶ`, cur: d => P(d, g), goal: 100 },
   ];
 
   const LIST = [
     // 最初から持っている
-    { id: 'unset', name: '未設定', color: 'none', hint: '最初から持っている', ok: () => true },
-    { id: 'hiyokko', name: 'ひよっこ参加者', color: 'pink', hint: '最初から持っている', ok: () => true },
+    { id: 'unset', name: '未設定', color: 'none', hint: 'デフォルト', ok: () => true },
+    { id: 'hiyokko', name: 'ひよっこ参加者', color: 'pink', hint: 'デフォルト', ok: () => true },
     // ブラックジャック
     ...tiers('blackjack', 'ブラックジャック'),
     // ルーレット
     ...tiers('roulette', 'ルーレット'),
-    { id: 'mrJackpot', name: 'Mr.Jackpot', color: 'gold', hint: 'ルーレットのジャックポット（矢印ボーナス）を当てる', ok: d => S(d, 'arrowBonus') >= 1 },
+    { id: 'mrJackpot', name: 'Mr.Jackpot', color: 'gold', hint: 'ルーレットのジャックポット（矢印ボーナス）を当てる', cur: d => S(d, 'arrowBonus'), goal: 1 },
     // ポーカー
     ...tiers('poker', 'ポーカー'),
-    { id: 'royal', name: 'ロイヤルストレートフラッシュ', color: 'gold', hint: 'ロイヤルストレートフラッシュを完成させる', ok: d => S(d, 'pkHand9') >= 1 },
-    ...HANDS.map((h, i) => ({ id: 'hand' + i, name: h + 'の使い手', color: 'green', hint: `ショーダウンで${h}を10回完成させる`, ok: d => S(d, 'pkHand' + i) >= 10 })),
-    { id: 'shoubushi', name: '勝負師', color: 'purple', hint: 'ポーカーでオールインを15回する', ok: d => S(d, 'allin') >= 15 },
+    { id: 'royal', name: 'ロイヤルストレートフラッシュ', color: 'gold', hint: 'ロイヤルストレートフラッシュを完成させる', cur: d => S(d, 'pkHand9'), goal: 1 },
+    ...HANDS.map((h, i) => ({ id: 'hand' + i, name: h + 'の使い手', color: 'green', hint: `ショーダウンで${h}を10回完成させる`, cur: d => S(d, 'pkHand' + i), goal: 10 })),
+    { id: 'shoubushi', name: '勝負師', color: 'purple', hint: 'ポーカーでオールインを15回する', cur: d => S(d, 'allin'), goal: 15 },
     // チンチロ
     ...tiers('chinchiro', 'チンチロ'),
-    { id: 'hifumin', name: 'ひふみん', color: 'white', hint: 'ヒフミを10回出す', ok: d => S(d, 'ccHifumi') >= 10 },
-    { id: 'takanome', name: '鷹の目', color: 'gold', hint: 'ピンゾロを10回出す', ok: d => S(d, 'ccPinzoro') >= 10 },
-    { id: 'arashi', name: '嵐を呼ぶギャンブラー', color: 'purple', hint: 'ゾロ目を30回出す', ok: d => S(d, 'ccZoro') >= 30 },
-    { id: 'shonben', name: 'ションベン小僧', color: 'white', hint: 'ションベンを5回出す', ok: d => S(d, 'ccPee') >= 5 },
+    { id: 'hifumin', name: 'ひふみん', color: 'white', hint: 'ヒフミを10回出す', cur: d => S(d, 'ccHifumi'), goal: 10 },
+    { id: 'takanome', name: '鷹の目', color: 'gold', hint: 'ピンゾロを10回出す', cur: d => S(d, 'ccPinzoro'), goal: 10 },
+    { id: 'arashi', name: '嵐を呼ぶギャンブラー', color: 'purple', hint: 'ゾロ目を30回出す', cur: d => S(d, 'ccZoro'), goal: 30 },
+    { id: 'shonben', name: 'ションベン小僧', color: 'white', hint: 'ションベンを5回出す', cur: d => S(d, 'ccPee'), goal: 5 },
     // 競馬
     ...tiers('keiba', '競馬'),
-    { id: 'bakenshi', name: '凄腕の馬券師', color: 'purple', hint: '単勝だけの1点買いで10回当てる', ok: d => S(d, 'kbSingleWin') >= 10 },
-    { id: 'horse50', name: 'ホースドリーマー', color: 'gold', hint: '1レースで賭け金の50倍以上を稼ぐ', ok: d => S(d, 'kbMult') >= 50 },
-    { id: 'horse100', name: 'レジェンダリー・ホースドリーマー', color: 'rainbow', hint: '1レースで賭け金の100倍以上を稼ぐ', ok: d => S(d, 'kbMult') >= 100 },
+    { id: 'bakenshi', name: '凄腕の馬券師', color: 'purple', hint: '単勝だけの1点買いで10回当てる', cur: d => S(d, 'kbSingleWin'), goal: 10 },
+    { id: 'horse50', name: 'ホースドリーマー', color: 'gold', hint: '1レースで賭け金の50倍以上を稼ぐ', cur: d => S(d, 'kbMult'), goal: 50, unit: '倍', dec: true },
+    { id: 'horse100', name: 'レジェンダリー・ホースドリーマー', color: 'rainbow', hint: '1レースで賭け金の100倍以上を稼ぐ', cur: d => S(d, 'kbMult'), goal: 100, unit: '倍', dec: true },
     // パチンコ
-    { id: 'pc1', name: 'パチンコビギナー', color: 'green', hint: 'パチンコで1,000 BON使う', ok: d => S(d, 'pcSpent') >= 1000 },
-    { id: 'pc2', name: 'パチンコマニア', color: 'blue', hint: 'パチンコで5,000 BON使う', ok: d => S(d, 'pcSpent') >= 5000 },
-    { id: 'pc3', name: 'チンコマスター', color: 'red', hint: 'パチンコで20,000 BON使う', ok: d => S(d, 'pcSpent') >= 20000 },
-    { id: 'pcDream', name: 'パチンコドリーム', color: 'purple', hint: 'パチンコで1回に10万BON勝つ', ok: d => S(d, 'pcWin') >= 100000 },
+    { id: 'pc1', name: 'パチンコビギナー', color: 'green', hint: 'パチンコで1,000 BON使う', cur: d => S(d, 'pcSpent'), goal: 1000 },
+    { id: 'pc2', name: 'パチンコマニア', color: 'blue', hint: 'パチンコで5,000 BON使う', cur: d => S(d, 'pcSpent'), goal: 5000 },
+    { id: 'pc3', name: 'チンコマスター', color: 'red', hint: 'パチンコで20,000 BON使う', cur: d => S(d, 'pcSpent'), goal: 20000 },
+    { id: 'pcDream', name: 'パチンコドリーム', color: 'purple', hint: 'パチンコで1回に10万BON勝つ', cur: d => S(d, 'pcWin'), goal: 100000 },
     // パチスロ
-    { id: 'sl1', name: 'パチスロビギナー', color: 'green', hint: 'パチスロを100回転まわす', ok: d => S(d, 'slSpins') >= 100 },
-    { id: 'sl2', name: 'パチスロマニア', color: 'blue', hint: 'パチスロを300回転まわす', ok: d => S(d, 'slSpins') >= 300 },
-    { id: 'sl3', name: 'パチスロマスター', color: 'red', hint: 'パチスロを1,000回転まわす', ok: d => S(d, 'slSpins') >= 1000 },
-    { id: 'slotman', name: 'スロットマン', color: 'purple', hint: 'パチスロで1回に10万BON勝つ', ok: d => S(d, 'slWin') >= 100000 },
-    { id: 'godbig', name: 'Mr.GOD BIG', color: 'gold', hint: 'パチスロでGOD BIGを出す', ok: d => S(d, 'slGod') >= 1 },
+    { id: 'sl1', name: 'パチスロビギナー', color: 'green', hint: 'パチスロを100回転まわす', cur: d => S(d, 'slSpins'), goal: 100 },
+    { id: 'sl2', name: 'パチスロマニア', color: 'blue', hint: 'パチスロを300回転まわす', cur: d => S(d, 'slSpins'), goal: 300 },
+    { id: 'sl3', name: 'パチスロマスター', color: 'red', hint: 'パチスロを1,000回転まわす', cur: d => S(d, 'slSpins'), goal: 1000 },
+    { id: 'slotman', name: 'スロットマン', color: 'purple', hint: 'パチスロで1回に10万BON勝つ', cur: d => S(d, 'slWin'), goal: 100000 },
+    { id: 'godbig', name: 'Mr.GOD BIG', color: 'gold', hint: 'パチスロでGOD BIGを出す', cur: d => S(d, 'slGod'), goal: 1 },
     // オンライン
-    { id: 'enjoy', name: 'ENJOY GAMBLER', color: 'blue', hint: 'ルームで30ラウンド遊ぶ', ok: d => S(d, 'roomRounds') >= 30 },
-    { id: 'deai', name: '出会いに感謝', color: 'red', hint: 'ルームで100ラウンド遊ぶ', ok: d => S(d, 'roomRounds') >= 100 },
-    { id: 'no1', name: 'No.1ギャンブラー', color: 'purple', hint: '3人以上のルームの最終結果で1位になる', ok: d => S(d, 'roomWin3') >= 1 },
-    { id: 'chouten', name: 'ギャンブラーの頂点', color: 'gold', hint: '3人以上のルームの最終結果で5回1位になる', ok: d => S(d, 'roomWin3') >= 5 },
-    { id: 'king', name: 'KING of GAMBLER', color: 'rainbow', hint: '3人以上のルームの最終結果で10回1位になる', ok: d => S(d, 'roomWin3') >= 10 },
-    { id: 'mama', name: 'みんなのママ', color: 'pink', hint: 'ルームを5回作る', ok: d => S(d, 'roomsMade') >= 5 },
+    { id: 'enjoy', name: 'ENJOY GAMBLER', color: 'blue', hint: 'ルームで30ラウンド遊ぶ', cur: d => S(d, 'roomRounds'), goal: 30 },
+    { id: 'deai', name: '出会いに感謝', color: 'red', hint: 'ルームで100ラウンド遊ぶ', cur: d => S(d, 'roomRounds'), goal: 100 },
+    { id: 'no1', name: 'No.1ギャンブラー', color: 'purple', hint: '3人以上のルームの最終結果で1位になる', cur: d => S(d, 'roomWin3'), goal: 1 },
+    { id: 'chouten', name: 'ギャンブラーの頂点', color: 'gold', hint: '3人以上のルームの最終結果で5回1位になる', cur: d => S(d, 'roomWin3'), goal: 5 },
+    { id: 'king', name: 'KING of GAMBLER', color: 'rainbow', hint: '3人以上のルームの最終結果で10回1位になる', cur: d => S(d, 'roomWin3'), goal: 10 },
+    { id: 'mama', name: 'みんなのママ', color: 'pink', hint: 'ルームを5回作る', cur: d => S(d, 'roomsMade'), goal: 5 },
     // その他
-    { id: 'max1', name: '到達者', color: 'red', hint: '最大所持金が10万BONを超える', ok: d => (d.maxBalance || 0) > 100000 },
-    { id: 'max2', name: 'Plus ultra!', color: 'purple', hint: '最大所持金が50万BONを超える', ok: d => (d.maxBalance || 0) > 500000 },
-    { id: 'max3', name: '最高到達地点', color: 'gold', hint: '最大所持金が100万BONを超える', ok: d => (d.maxBalance || 0) > 1000000 },
-    { id: 'max4', name: '覇者', color: 'rainbow', hint: '最大所持金が500万BONを超える', ok: d => (d.maxBalance || 0) > 5000000 },
-    { id: 'max5', name: 'BON!', color: 'bon', hint: '最大所持金が1000万BONを超える', ok: d => (d.maxBalance || 0) > 10000000 },
+    { id: 'max1', name: '到達者', color: 'red', hint: '最大所持金が10万BONを超える', cur: d => d.maxBalance || 0, goal: 100000, gt: true },
+    { id: 'max2', name: 'Plus ultra!', color: 'purple', hint: '最大所持金が50万BONを超える', cur: d => d.maxBalance || 0, goal: 500000, gt: true },
+    { id: 'max3', name: '最高到達地点', color: 'gold', hint: '最大所持金が100万BONを超える', cur: d => d.maxBalance || 0, goal: 1000000, gt: true },
+    { id: 'max4', name: '覇者', color: 'rainbow', hint: '最大所持金が500万BONを超える', cur: d => d.maxBalance || 0, goal: 5000000, gt: true },
+    { id: 'max5', name: 'BON!', color: 'bon', hint: '最大所持金が1000万BONを超える', cur: d => d.maxBalance || 0, goal: 10000000, gt: true },
   ];
+  // 条件：cur（今の記録）が goal（目標）に届いたら獲得（gt は「超える」）
+  LIST.forEach(t => { if (!t.ok) t.ok = d => (t.gt ? t.cur(d) > t.goal : t.cur(d) >= t.goal); });
   const BY = Object.fromEntries(LIST.map(t => [t.id, t]));
+  // 進み具合「今 / 目標」
+  function progress(t, d) {
+    if (!t.cur) return '';
+    let v = 0; try { v = Number(t.cur(d)) || 0; } catch (e) {}
+    v = Math.max(0, Math.min(v, t.goal));
+    const num = x => t.dec ? (Math.floor(x * 10) / 10).toLocaleString('ja-JP') : fmt(Math.floor(x));
+    return `<span class="ttl-prog"><i style="width:${(v / t.goal * 100).toFixed(1)}%"></i></span><b class="ttl-num">${num(v)} / ${num(t.goal)}${t.unit || (/BON/.test(t.hint) ? ' BON' : '')}</b>`;
+  }
 
   const owned = d => LIST.filter(t => { try { return t.ok(d); } catch (e) { return false; } });
   const ownedIds = d => new Set(owned(d).map(t => t.id));
@@ -8904,18 +8919,22 @@ const Titles = (() => {
   }
 
   // 称号の一覧（持っているものは光る。持っていないものは黒く塗りつぶして条件だけ見せる）
-  function openList() {
+  // inPlace：開いている一覧の中身だけを描き直す（閉じて開き直すとチカチカするため）
+  function openList(inPlace = false) {
     const d = Save.get(), have = ownedIds(d), sel = selected(d);
     const got = LIST.filter(t => have.has(t.id)), not = LIST.filter(t => !have.has(t.id));
-    Help.show('称号', `
+    const body = `
       <p class="ttl-info">持っている称号をタップして飾る（2つまで・最低1つ）。<b>${got.length}</b> / ${LIST.length} 獲得</p>
       <div class="ttl-grid">
         ${got.map(t => {
           const k = sel.indexOf(t.id);
           return `<button class="ttl-item ${k >= 0 ? 'on' : ''}" data-ttl="${t.id}">${chip(t)}${k >= 0 ? `<i class="ttl-pick">${sel.length > 1 ? k + 1 : '✓'}</i>` : ''}<small>${esc(t.hint)}</small></button>`;
         }).join('')}
-        ${not.map(t => `<div class="ttl-item locked"><span class="ttl locked">${'？'.repeat(Math.min(8, Math.max(3, [...t.name].length)))}</span><small>${esc(t.hint)}</small></div>`).join('')}
-      </div>`);
+        ${not.map(t => `<div class="ttl-item locked"><span class="ttl locked">${'？'.repeat(Math.min(8, Math.max(3, [...t.name].length)))}</span><small>${esc(t.hint)}</small>${progress(t, d)}</div>`).join('')}
+      </div>`;
+    const open = inPlace && document.querySelector('.help-ov .ttl-grid');
+    if (open) open.closest('.help-body').innerHTML = body;   // スクロール位置はそのまま
+    else Help.show('称号', body);
     document.querySelectorAll('[data-ttl]').forEach(b => b.onclick = () => toggle(b.dataset.ttl));
   }
   function toggle(id) {
@@ -8931,7 +8950,7 @@ const Titles = (() => {
     }
     Save.setProfile({ titles: sel });
     Sound.tap();
-    openList();
+    openList(true);
     if (typeof App !== 'undefined' && App.refresh) App.refresh();
   }
   document.addEventListener('click', e => { if (e.target.closest('[data-titles]')) { Sound.tap(); openList(); } });
