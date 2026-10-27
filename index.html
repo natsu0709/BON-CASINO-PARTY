@@ -55,7 +55,7 @@ button { font-family: inherit; cursor: pointer; }
   padding-block: 10px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  background: rgba(11,15,20,.92); backdrop-filter: blur(8px);
+  background: rgba(11,15,20,.92); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line);
 }
 .logo {
@@ -519,7 +519,7 @@ body.fx-lose main { animation: shake .45s .1s; }
 .result-wrap {
   position: fixed; inset: 0; z-index: 60; display: grid; place-items: center;
   padding: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  background: rgba(0,0,0,0); transition: background .35s; overflow: hidden;
+  background: rgba(0,0,0,0); transition: background .35s; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
 }
 .result-wrap.in { background: rgba(3,8,6,.72); }
 .result-wrap.lose.in { background: rgba(10,4,6,.82); }
@@ -1276,7 +1276,7 @@ body.has-chat .cc-roll { right: calc(84px + env(safe-area-inset-right)); }
 }
 .help-ov.in { opacity: 1; }
 .help-panel {
-  width: min(560px, 100%); max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 24px); display: flex; flex-direction: column;
+  width: min(560px, 100%); max-height: calc(100vh - env(safe-area-inset-top, 0px) - 24px); max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 24px); display: flex; flex-direction: column;
   background: linear-gradient(180deg, #1b1d26, #111218); border: 1px solid rgba(243,196,75,.4); border-bottom: 0;
   border-radius: 18px 18px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,.6);
   transform: translateY(30px); transition: transform .25s cubic-bezier(.2,1,.4,1);
@@ -1816,7 +1816,7 @@ body::before { background: #07040e; }
   text-shadow: 0 0 6px #fff, 0 0 14px var(--neon-pink), 0 0 28px var(--neon-pink); }
 .ui .back-btn, .ui #pageBack { color: #c9b5ff; }
 .ui .sheet, .ui .stat, .ui .notice, .ui .rank-list li, .ui .tabs, .modal, .ui .member-list li:not(.empty) {
-  background: var(--glass); border: 1px solid var(--glass-line); backdrop-filter: blur(6px);
+  background: var(--glass); border: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
   box-shadow: inset 0 0 22px rgba(163,91,255,.12), 0 8px 24px rgba(0,0,0,.45);
 }
 .ui .sheet { border-radius: 20px; position: relative; }
@@ -1908,6 +1908,86 @@ body::before { background: #07040e; }
 .pk-chip0 { --c1: #123a7a; --c2: #e9f1ff; --ink: #ffffff; }   /* ビギナー：青いチップ */
 .pk-chip1 { --c1: #8e1424; --c2: #ffffff; --ink: #ffffff; }   /* スタンダード：赤いチップ */
 .pk-chip2 { --c1: #141414; --c2: #f3c44b; --ink: #ffe28a; }   /* ハイローラー：黒×金のチップ */
+
+/* =====================================================================
+   称号（ネオンの縁取り・角丸・文字の背景は黒）
+   ===================================================================== */
+.ttl { --nc: #a35bff; display: inline-flex; align-items: center; justify-content: center; padding: 5px 12px; border-radius: 10px;
+  background: #050308; color: #fff; font-size: 12.5px; font-weight: 800; letter-spacing: .03em; white-space: nowrap; line-height: 1.2;
+  border: 1.5px solid var(--nc); box-shadow: 0 0 6px var(--nc), 0 0 14px color-mix(in srgb, var(--nc) 55%, transparent), inset 0 0 8px color-mix(in srgb, var(--nc) 35%, transparent);
+  text-shadow: 0 0 6px var(--nc); }
+.ttl.c-green { --nc: #39ff88; } .ttl.c-blue { --nc: #3aa6ff; } .ttl.c-red { --nc: #ff3b4e; } .ttl.c-gold { --nc: #ffd257; }
+.ttl.c-purple { --nc: #b35bff; } .ttl.c-white { --nc: #ffffff; } .ttl.c-pink { --nc: #ff6ad5; }
+.ttl.c-none { --nc: #7d7590; color: #cfc8dc; box-shadow: 0 0 6px rgba(125,117,144,.6), inset 0 0 6px rgba(125,117,144,.3); text-shadow: none; }
+/* 虹色：縁取りの色がぐるぐる変わる */
+.ttl.c-rainbow, .ttl.c-bon { border-color: transparent; position: relative; isolation: isolate; animation: ttlHue 3s linear infinite; --nc: #ff4fd8; }
+.ttl.c-rainbow::before, .ttl.c-bon::before { content: ""; position: absolute; inset: -1.5px; border-radius: 10px; padding: 1.5px; z-index: -1;
+  background: linear-gradient(90deg, #ff3b4e, #ffd257, #39ff88, #27e6ff, #b35bff, #ff3b4e); background-size: 200% 100%; animation: ttlFlow 2s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.ttl.c-rainbow { background: #050308; box-shadow: 0 0 10px rgba(255,79,216,.6), 0 0 18px rgba(39,230,255,.4); }
+.ttl.c-rainbow, .ttl.c-rainbow * { color: #fff; }
+@keyframes ttlFlow { to { background-position: 200% 0; } }
+@keyframes ttlHue { 0% { box-shadow: 0 0 10px #ff3b4e, 0 0 18px rgba(255,59,78,.5); } 33% { box-shadow: 0 0 10px #39ff88, 0 0 18px rgba(57,255,136,.5); } 66% { box-shadow: 0 0 10px #27e6ff, 0 0 18px rgba(39,230,255,.5); } 100% { box-shadow: 0 0 10px #ff3b4e, 0 0 18px rgba(255,59,78,.5); } }
+/* BON!：金の背景に虹色の文字 */
+.ttl.c-bon { background: linear-gradient(180deg, #fff3b8, #f3c44b 45%, #b8800e); font-family: var(--logo); font-size: 15px; letter-spacing: .08em; text-shadow: none; }
+.ttl.c-bon { color: transparent; -webkit-text-stroke: .4px #3b2800; }
+.ttl.c-bon { background-image: linear-gradient(90deg, #ff3b4e, #ff8a2f, #ffd257, #39ff88, #27e6ff, #b35bff, #ff3b4e), linear-gradient(180deg, #fff3b8, #f3c44b 45%, #b8800e);
+  background-size: 200% 100%, 100% 100%; -webkit-background-clip: text, padding-box; background-clip: text, padding-box; animation: ttlFlow 2.5s linear infinite, ttlHue 3s linear infinite; }
+/* まだ持っていない：黒く塗りつぶす（光らない） */
+.ttl.locked { --nc: transparent; background: #0d0b12; color: #2a2533; border: 1.5px solid #1d1a24; box-shadow: none; text-shadow: none; letter-spacing: .1em; }
+
+/* プロフィールの称号の欄 */
+.ttl-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0; padding: 0; background: none; border: 0; text-align: left; color: inherit; }
+button.ttl-row { cursor: pointer; width: 100%; padding: 6px 0; }
+.ttl-more { margin-left: auto; color: var(--muted); font-size: 18px; }
+.titles { margin: 0; }
+
+/* 一覧 */
+.ttl-info { color: var(--muted); font-size: 12.5px; margin: 6px 0 10px !important; }
+.ttl-info b { color: var(--gold); }
+.ttl-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding-bottom: 6px; }
+.ttl-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px 10px; border-radius: 14px;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07); color: inherit; min-width: 0; }
+button.ttl-item { cursor: pointer; }
+button.ttl-item:active { transform: scale(.97); }
+.ttl-item .ttl { max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 12px; padding: 5px 10px; }
+.ttl-item small { font-size: 10.5px; color: var(--muted); text-align: center; line-height: 1.35; }
+.ttl-item.locked small { color: #5c566b; }
+.ttl-item.on { border-color: var(--gold); background: rgba(243,196,75,.08); box-shadow: 0 0 12px rgba(243,196,75,.3); }
+.ttl-pick { position: absolute; top: -7px; right: -5px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 12px; font-weight: 800;
+  background: var(--gold); color: #2b1d00; box-shadow: 0 0 8px rgba(243,196,75,.8); }
+
+/* 獲得のお知らせ */
+.ttl-toast { position: fixed; left: 50%; top: calc(70px + env(safe-area-inset-top)); z-index: 450; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 18px; border-radius: 16px; background: rgba(8,4,16,.94); border: 1px solid rgba(243,196,75,.6); box-shadow: 0 0 24px rgba(243,196,75,.4), 0 10px 30px rgba(0,0,0,.6);
+  animation: ttlIn .5s cubic-bezier(.2,1.6,.4,1) both; cursor: pointer; }
+.ttl-toast small { color: #ffe9a8; font-size: 12px; font-weight: 700; }
+.ttl-toast .ttl { font-size: 15px; padding: 6px 14px; }
+.ttl-toast.out { animation: ttlOut .45s forwards; }
+@keyframes ttlIn { from { transform: translate(-50%, -30px) scale(.8); opacity: 0; } }
+@keyframes ttlOut { to { transform: translate(-50%, -20px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ttl.c-rainbow, .ttl.c-bon, .ttl.c-rainbow::before, .ttl.c-bon::before { animation: none; } }
+.ttl-item .ttl { white-space: normal; text-align: center; overflow: visible; }
+.ttl-row .ttl { max-width: 100%; white-space: normal; text-align: center; }
+
+/* スマホの横向き：結果カードを小さくして、ボタンまで画面に収める／4つ並びのボタンは2列に */
+@media (orientation: landscape) and (max-height: 540px) {
+  .result-wrap { align-items: center; padding-block: 8px; }
+  .result-card { width: min(520px, 100%); padding: 14px 18px 14px; }
+  .result-title { font-size: 34px; }
+  .result-sub { margin-top: 4px; font-size: 12.5px; }
+  .result-net { margin-top: 8px; font-size: 30px; }
+  .result-ret, .result-bal { margin-top: 4px; }
+  .result-note { margin-top: 6px; padding: 5px 8px; font-size: 12px; }
+  .result-actions { grid-template-columns: 1fr 1fr; margin-top: 10px; }
+  .result-actions .btn { padding: 11px; font-size: 15px; }
+  main:has(> .game-head) .action-row.four, #rmControls .action-row.four { grid-template-columns: 1fr 1fr; }
+  main:has(> .game-head) .action-row .btn { white-space: nowrap; }
+}
+/* ルームの操作ボタン：文字が途中で折り返さないように */
+#rmControls .action-row .btn { white-space: nowrap; padding-inline: 8px; }
+/* 演出で画面を揺らしたときに、横にスクロールできてしまわないように（clip はスクロールの仕組みを変えないので上のバーの固定はそのまま） */
+html, body { overflow-x: clip; }
 
 </style>
 </head>
@@ -2076,6 +2156,23 @@ const Bgm = (() => {
 
   const audio = new Audio();
   audio.preload = 'none';
+  // iPhone・iPad は audio.volume を変えられない（いつも最大）。Web Audio の音量つまみを通して音量を変える
+  const IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+  let gainNode = null;
+  function viaGain() {
+    if (!IOS) return null;
+    if (gainNode) return gainNode;
+    const ctx = window.Sound && Sound.ctx;
+    if (!ctx) return null;
+    try {
+      const src = ctx.createMediaElementSource(audio);
+      gainNode = ctx.createGain(); gainNode.gain.value = 0;
+      src.connect(gainNode).connect(ctx.destination);
+    } catch (e) { console.warn(e); }
+    return gainNode;
+  }
+  const getVol = () => { const g = viaGain(); return g ? g.gain.value : audio.volume; };
+  const setVol = v => { const g = viaGain(); if (g) { g.gain.value = v; audio.volume = 1; } else audio.volume = v; };
   let started = false, current = null, ducked = false, fadeTimer = 0, fadeStep = 0.04;
   const holds = new Set();
 
@@ -2106,14 +2203,14 @@ const Bgm = (() => {
     if (!current || (setting() !== 'random' && current.id !== setting())) load(pick());
     const target = vol();
     if (audio.paused) {
-      audio.volume = fade ? 0 : target;
+      setVol(fade ? 0 : target);
       const p = audio.play(); if (p && p.catch) p.catch(() => {});
     }
-    if (!fade) { audio.volume = target; return; }
+    if (!fade) { setVol(target); return; }
     fadeTimer = setInterval(() => {
-      const v = audio.volume, d = target - v;
-      if (Math.abs(d) < 0.005) { audio.volume = target; clearInterval(fadeTimer); fadeStep = 0.04; return; }
-      audio.volume = Math.max(0, Math.min(1, v + Math.sign(d) * Math.min(Math.abs(d), fadeStep)));
+      const v = getVol(), d = target - v;
+      if (Math.abs(d) < 0.005) { setVol(target); clearInterval(fadeTimer); fadeStep = 0.04; return; }
+      setVol(Math.max(0, Math.min(1, v + Math.sign(d) * Math.min(Math.abs(d), fadeStep))));
     }, 40);
   }
 
@@ -2509,6 +2606,17 @@ const Save = (() => {
     setSetting(k, v) { data.settings[k] = v; persist(); },
     // 称号などに使う回数の記録（矢印ボーナスの回数など）
     addStat(key) { data.stats = data.stats || {}; data.stats[key] = (data.stats[key] || 0) + 1; persist(); },
+    // 回数を n 増やす／最高記録を更新する／同じ出来事を2回数えない（ルームの各ラウンドなど）
+    stat(key, n = 1) { if (!n) return; data.stats = data.stats || {}; data.stats[key] = (data.stats[key] || 0) + n; persist(); },
+    statMax(key, v) { data.stats = data.stats || {}; if (v > (data.stats[key] || 0)) { data.stats[key] = v; persist(); } },
+    statOnce(key, id, n = 1) {
+      data.statIds = data.statIds || [];
+      const k = key + '@' + id;
+      if (data.statIds.includes(k)) return false;
+      data.statIds = [...data.statIds, k].slice(-200);
+      data.stats = data.stats || {}; data.stats[key] = (data.stats[key] || 0) + n; persist();
+      return true;
+    },
     // ゲームの途中経過（ポーカーのテーブルに置いたままのチップなど）
     getMisc: k => (data.misc || {})[k],
     setMisc(k, v) { data.misc = data.misc || {}; data.misc[k] = v; persist(); },
@@ -2519,6 +2627,7 @@ const Save = (() => {
       if ((r.keys || []).includes(key)) return false;
       r.keys = [...(r.keys || []), key].slice(-20);
       r.played++; if (rank === 1) r.wins++; if (rank <= 3) r.top3++;
+      if (rank === 1 && players >= 3) { data.stats = data.stats || {}; data.stats.roomWin3 = (data.stats.roomWin3 || 0) + 1; }   // 3人以上のルームで優勝
       if (r.best == null || score > r.best) r.best = score;
       r.last = { rank, players, score };
       persist();
@@ -2529,7 +2638,7 @@ const Save = (() => {
     exportCloud() {
       const bal = Math.max(0, Math.floor(data.balance));
       return {
-        name: data.profile.name, icon: data.profile.icon || '', code: data.profile.code,
+        name: data.profile.name, icon: data.profile.icon || '', code: data.profile.code, titles: data.profile.titles || ['unset'],
         balance: bal, maxBalance: Math.max(bal, Math.floor(data.maxBalance)), resetCount: data.resetCount,
         plays: data.plays, wins: data.wins, stats: data.stats || {}, misc: data.misc || {},
         room: data.room ? { played: data.room.played, wins: data.room.wins, top3: data.room.top3, best: data.room.best } : { played: 0, wins: 0, top3: 0, best: null },
@@ -2543,6 +2652,7 @@ const Save = (() => {
       data.plays = c.plays || {}; data.wins = c.wins || {}; data.stats = c.stats || {}; data.misc = c.misc || {};
       if (c.room) data.room = { ...(data.room || { keys: [] }), played: c.room.played || 0, wins: c.room.wins || 0, top3: c.room.top3 || 0, best: c.room.best ?? null };
       Object.assign(data.profile, { name: c.name || data.profile.name, icon: c.icon || '', code: c.code || data.profile.code });
+      if (Array.isArray(c.titles) && c.titles.length) data.profile.titles = c.titles.slice(0, 2);
       persist();
     },
   };
@@ -2962,7 +3072,7 @@ const Sound = (() => {
   };
 
   return {
-    unlock, playSong, stopSong, riser, stopRiser,
+    unlock, playSong, stopSong, riser, stopRiser, get ctx() { return ctx; },
     sweep: (a, b, d) => sweepTone(a, b, d, 'sawtooth', 0.7),
     // 腹に響く「ドーン」
     boom: () => { sweepTone(160, 35, 0.6, 'sine', 2.2); swish(0.5, 400, 1); swish(0.25, 2500, 0.5); },
@@ -3199,7 +3309,13 @@ const Result = (() => {
     })(start);
   }
 
+  // 勝ち負けの演出（Fx）がまだ出ていたら、それが終わってから結果のカードを出す（重なって見づらくならないように）
   function show(o) {
+    const w = window.Fx ? Fx.left() : 0;
+    if (w > 0) { setTimeout(() => { Fx.clear(); open(o); }, Math.min(w, 1300)); return; }
+    open(o);
+  }
+  function open(o) {
     const wrap = document.createElement('div');
     wrap.className = `result-wrap ${o.kind}${o.mega ? ' mega' : ''}`;
     const sign = o.net > 0 ? '+' : o.net < 0 ? '−' : '±';
@@ -3268,7 +3384,7 @@ const Result = (() => {
 const Fx = (() => {
   const reduce = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fmt = n => Math.round(n).toLocaleString('ja-JP');
-  let busy = null;
+  let busy = null, busyUntil = 0;
 
   // ---- コインの絵（一度描いて使い回す：たくさん出しても軽い） ----
   const sprites = {};
@@ -3368,10 +3484,10 @@ const Fx = (() => {
       done = true; clearTimeout(timer); if (p) p.stop();
       ov.classList.add('out');
       setTimeout(() => ov.remove(), 400);
-      if (busy === end) busy = null;
+      if (busy === end) { busy = null; busyUntil = 0; }
     };
     const timer = setTimeout(end, ms);
-    busy = end;
+    busy = end; busyUntil = Date.now() + ms;
     return { ov, end, p };
   }
 
@@ -3458,7 +3574,8 @@ const Fx = (() => {
     el.dataset.text = text;
   }
 
-  return { big, win, lose, outcome, kind, edge, coinSprite, vib };
+  // left：今の演出が終わるまでの残り時間（ミリ秒）／clear：今の演出をすぐ消す
+  return { big, win, lose, outcome, kind, edge, coinSprite, vib, left: () => (busy ? Math.max(0, busyUntil - Date.now()) : 0), clear: () => { if (busy) busy(); } };
 })();
 
 </script>
@@ -4743,7 +4860,9 @@ const Poker = (() => {
   }
   function humanAct(kind, amount) {
     if (!s.resolve) return;
+    const was = me().allIn;
     act(me(), kind, amount);
+    if (!was && me().allIn) Save.stat('allin');   // 称号用：オールインした回数
     const r = s.resolve; s.resolve = null; s.raiseOpen = false;
     r();
   }
@@ -4785,6 +4904,8 @@ const Poker = (() => {
     s.phase = 'show';
     // 手札を公開
     live().forEach(p => { p.reveal = true; p.best = evalHand(p.hand.concat(s.board)); });
+    // 称号用：ショーダウンまで残ったときの自分の役
+    if (!me().folded) Save.stat('pkHand' + category(me().best));
     Sound.flip(); render();
     await wait(800);
     // サイドポットを含めて分ける
@@ -5297,6 +5418,13 @@ const Chinchiro = (() => {
     return null; // 役なし → 振り直し
   }
   const STRONG = ['pinzoro', 'zoro', 'shigoro'];
+  // 称号用：自分が出した役を数える（1人プレイ・ルーム共通）
+  function countHand(kind) {
+    if (kind === 'hifumi') Save.stat('ccHifumi');
+    if (kind === 'pinzoro') Save.stat('ccPinzoro');
+    if (kind === 'pinzoro' || kind === 'zoro') Save.stat('ccZoro');
+    if (kind === 'pee') Save.stat('ccPee');
+  }
 
   function open(container, onBack) {
     root = container;
@@ -5516,6 +5644,7 @@ const Chinchiro = (() => {
       // 親が「目」を出したので、あなたが振る
       const p = await turn('player');
       s.player = p; showHand('player', p); render();
+      countHand(p.kind);
       if (STRONG.includes(p.kind)) { outcome = p.mult; reason = `あなたが${p.name}`; }
       else if (p.kind === 'hifumi') { outcome = -2; reason = 'あなたがヒフミ'; }
       else if (p.kind === 'pee') { outcome = -1; reason = 'あなたがションベン'; }
@@ -5622,7 +5751,7 @@ const Chinchiro = (() => {
 
   // ---------- ルーム用 ----------
   const multi = {
-    judge, STRONG, PEE_CHANCE,
+    judge, STRONG, PEE_CHANCE, countHand,
     // 役が出るまで最大3回の振り方を決める（ルームマスター）。ションベンもここで決まる
     rollSeq() {
       const tries = [];
@@ -6645,6 +6774,9 @@ const Keiba = (() => {
     const after = Save.get().balance;
     const net = returned - total;
     Save.recordPlay('keiba', net > 0);
+    // 称号用：単勝だけを1点買いして当てた／1レースで賭け金の何倍になったか
+    if (s.bets.length === 1 && s.bets[0].type === 'win' && s.bets[0].sel[0] === first) Save.stat('kbSingleWin');
+    if (total) Save.statMax('kbMult', returned / total);
 
     s.phase = 'result';
     s.order = order;
@@ -7711,6 +7843,7 @@ const Pachinko = (() => {
     if (back) Save.pay(back);
     const after = Save.get().balance;
     if (s.lent || back) Save.recordPlay('pachinko', net > 0);
+    Save.stat('pcSpent', Math.max(0, s.lent)); Save.statMax('pcWin', net);   // 称号用
     const sum = { net, back, lent: s.lent, jackpots: s.stats.jackpots, spins: s.stats.spins, balls: s.balls };
     s.balls = 0; s.lent = 0;
     updateUI();
@@ -7999,6 +8132,7 @@ const Slot = (() => {
     if (!s.carry && !s.bonus) Bgm.release('hot');   // ハズレなら次のゲームからBGM再開
     s.pay = 0; s.lastWin = '';
     s.games++; s.stats.games++;
+    Save.stat('slSpins');   // 称号用：回した回数
     // 抽選：ボーナス中はベル（15枚）だけ。ふだんはボーナス＋小役
     let allowed = [], d = {};
     if (s.bonus) allowed = ['bell'];
@@ -8153,6 +8287,7 @@ const Slot = (() => {
     burst(4, 120);
     Fx.big({ title: BONUS[kind].name + '!!', sub: `最大 ${BONUS[kind].max}枚 獲得！`, tier: kind === 'god' || kind === 'premium' ? 3 : kind === 'reg' ? 1 : 2, ms: 3000 });
     Save.addStat(kind === 'reg' ? 'slotReg' : 'slotBig');
+    if (kind === 'god') Save.stat('slGod');
     setTimeout(() => { if (s && s.bonus) Sound.playSong(BONUS[kind].song, { bpm: kind === 'god' ? 176 : 160, key: kind === 'god' ? 3 : 0 }); }, 1500);
   }
 
@@ -8517,6 +8652,7 @@ const Slot = (() => {
     if (back) Save.pay(back);
     const after = Save.get().balance;
     if (s.lent || back) Save.recordPlay('slot', net > 0);
+    Save.statMax('slWin', net);   // 称号用
     const sum = { medals: s.medals, lent: s.lent, big: s.stats.big, reg: s.stats.reg, games: s.stats.games };
     s.medals = 0; s.lent = 0;
     updateUI();
@@ -8681,6 +8817,156 @@ const Slot = (() => {
 
 </script>
 <script>
+// 称号：条件を満たすと手に入り、プロフィールに2つまで飾れる
+// 手に入ったかどうかは、セーブデータ（プレイ回数・記録）からその場で計算する（フレンドのプロフィールも同じ計算）
+// 色：green 緑 / blue 青 / red 赤 / gold 金 / purple 紫 / white 白 / pink ピンク / rainbow 虹色 / bon 虹色＋金の背景
+const Titles = (() => {
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmt = n => Math.round(n).toLocaleString('ja-JP');
+  const P = (d, g) => (d.plays || {})[g] || 0;
+  const S = (d, k) => (d.stats || {})[k] || 0;
+  const R = d => d.room || {};
+  const HANDS = ['ハイカード', 'ワンペア', 'ツーペア', 'スリーカード', 'ストレート', 'フラッシュ', 'フルハウス', 'フォーカード', 'ストレートフラッシュ'];
+
+  // 1人プレイの回数でもらえる3段階（ビギナー・マニア・マスター）
+  const tiers = (g, label, unit = '回') => [
+    { id: g + '1', name: label + 'ビギナー', color: 'green', hint: `1人プレイで${label}を10${unit}遊ぶ`, ok: d => P(d, g) >= 10 },
+    { id: g + '2', name: label + 'マニア', color: 'blue', hint: `1人プレイで${label}を50${unit}遊ぶ`, ok: d => P(d, g) >= 50 },
+    { id: g + '3', name: label + 'マスター', color: 'red', hint: `1人プレイで${label}を100${unit}遊ぶ`, ok: d => P(d, g) >= 100 },
+  ];
+
+  const LIST = [
+    // 最初から持っている
+    { id: 'unset', name: '未設定', color: 'none', hint: '最初から持っている', ok: () => true },
+    { id: 'hiyokko', name: 'ひよっこ参加者', color: 'pink', hint: '最初から持っている', ok: () => true },
+    // ブラックジャック
+    ...tiers('blackjack', 'ブラックジャック'),
+    // ルーレット
+    ...tiers('roulette', 'ルーレット'),
+    { id: 'mrJackpot', name: 'Mr.Jackpot', color: 'gold', hint: 'ルーレットのジャックポット（矢印ボーナス）を当てる', ok: d => S(d, 'arrowBonus') >= 1 },
+    // ポーカー
+    ...tiers('poker', 'ポーカー'),
+    { id: 'royal', name: 'ロイヤルストレートフラッシュ', color: 'gold', hint: 'ロイヤルストレートフラッシュを完成させる', ok: d => S(d, 'pkHand9') >= 1 },
+    ...HANDS.map((h, i) => ({ id: 'hand' + i, name: h + 'の使い手', color: 'green', hint: `ショーダウンで${h}を10回完成させる`, ok: d => S(d, 'pkHand' + i) >= 10 })),
+    { id: 'shoubushi', name: '勝負師', color: 'purple', hint: 'ポーカーでオールインを15回する', ok: d => S(d, 'allin') >= 15 },
+    // チンチロ
+    ...tiers('chinchiro', 'チンチロ'),
+    { id: 'hifumin', name: 'ひふみん', color: 'white', hint: 'ヒフミを10回出す', ok: d => S(d, 'ccHifumi') >= 10 },
+    { id: 'takanome', name: '鷹の目', color: 'gold', hint: 'ピンゾロを10回出す', ok: d => S(d, 'ccPinzoro') >= 10 },
+    { id: 'arashi', name: '嵐を呼ぶギャンブラー', color: 'purple', hint: 'ゾロ目を30回出す', ok: d => S(d, 'ccZoro') >= 30 },
+    { id: 'shonben', name: 'ションベン小僧', color: 'white', hint: 'ションベンを5回出す', ok: d => S(d, 'ccPee') >= 5 },
+    // 競馬
+    ...tiers('keiba', '競馬'),
+    { id: 'bakenshi', name: '凄腕の馬券師', color: 'purple', hint: '単勝だけの1点買いで10回当てる', ok: d => S(d, 'kbSingleWin') >= 10 },
+    { id: 'horse50', name: 'ホースドリーマー', color: 'gold', hint: '1レースで賭け金の50倍以上を稼ぐ', ok: d => S(d, 'kbMult') >= 50 },
+    { id: 'horse100', name: 'レジェンダリー・ホースドリーマー', color: 'rainbow', hint: '1レースで賭け金の100倍以上を稼ぐ', ok: d => S(d, 'kbMult') >= 100 },
+    // パチンコ
+    { id: 'pc1', name: 'パチンコビギナー', color: 'green', hint: 'パチンコで1,000 BON使う', ok: d => S(d, 'pcSpent') >= 1000 },
+    { id: 'pc2', name: 'パチンコマニア', color: 'blue', hint: 'パチンコで5,000 BON使う', ok: d => S(d, 'pcSpent') >= 5000 },
+    { id: 'pc3', name: 'チンコマスター', color: 'red', hint: 'パチンコで20,000 BON使う', ok: d => S(d, 'pcSpent') >= 20000 },
+    { id: 'pcDream', name: 'パチンコドリーム', color: 'purple', hint: 'パチンコで1回に10万BON勝つ', ok: d => S(d, 'pcWin') >= 100000 },
+    // パチスロ
+    { id: 'sl1', name: 'パチスロビギナー', color: 'green', hint: 'パチスロを100回転まわす', ok: d => S(d, 'slSpins') >= 100 },
+    { id: 'sl2', name: 'パチスロマニア', color: 'blue', hint: 'パチスロを300回転まわす', ok: d => S(d, 'slSpins') >= 300 },
+    { id: 'sl3', name: 'パチスロマスター', color: 'red', hint: 'パチスロを1,000回転まわす', ok: d => S(d, 'slSpins') >= 1000 },
+    { id: 'slotman', name: 'スロットマン', color: 'purple', hint: 'パチスロで1回に10万BON勝つ', ok: d => S(d, 'slWin') >= 100000 },
+    { id: 'godbig', name: 'Mr.GOD BIG', color: 'gold', hint: 'パチスロでGOD BIGを出す', ok: d => S(d, 'slGod') >= 1 },
+    // オンライン
+    { id: 'enjoy', name: 'ENJOY GAMBLER', color: 'blue', hint: 'ルームで30ラウンド遊ぶ', ok: d => S(d, 'roomRounds') >= 30 },
+    { id: 'deai', name: '出会いに感謝', color: 'red', hint: 'ルームで100ラウンド遊ぶ', ok: d => S(d, 'roomRounds') >= 100 },
+    { id: 'no1', name: 'No.1ギャンブラー', color: 'purple', hint: '3人以上のルームの最終結果で1位になる', ok: d => S(d, 'roomWin3') >= 1 },
+    { id: 'chouten', name: 'ギャンブラーの頂点', color: 'gold', hint: '3人以上のルームの最終結果で5回1位になる', ok: d => S(d, 'roomWin3') >= 5 },
+    { id: 'king', name: 'KING of GAMBLER', color: 'rainbow', hint: '3人以上のルームの最終結果で10回1位になる', ok: d => S(d, 'roomWin3') >= 10 },
+    { id: 'mama', name: 'みんなのママ', color: 'pink', hint: 'ルームを5回作る', ok: d => S(d, 'roomsMade') >= 5 },
+    // その他
+    { id: 'max1', name: '到達者', color: 'red', hint: '最大所持金が10万BONを超える', ok: d => (d.maxBalance || 0) > 100000 },
+    { id: 'max2', name: 'Plus ultra!', color: 'purple', hint: '最大所持金が50万BONを超える', ok: d => (d.maxBalance || 0) > 500000 },
+    { id: 'max3', name: '最高到達地点', color: 'gold', hint: '最大所持金が100万BONを超える', ok: d => (d.maxBalance || 0) > 1000000 },
+    { id: 'max4', name: '覇者', color: 'rainbow', hint: '最大所持金が500万BONを超える', ok: d => (d.maxBalance || 0) > 5000000 },
+    { id: 'max5', name: 'BON!', color: 'bon', hint: '最大所持金が1000万BONを超える', ok: d => (d.maxBalance || 0) > 10000000 },
+  ];
+  const BY = Object.fromEntries(LIST.map(t => [t.id, t]));
+
+  const owned = d => LIST.filter(t => { try { return t.ok(d); } catch (e) { return false; } });
+  const ownedIds = d => new Set(owned(d).map(t => t.id));
+  // 飾っている称号（持っていないものは外す。1つもなければ「未設定」）
+  function selected(d) {
+    const have = ownedIds(d);
+    const sel = ((d.profile ? d.profile.titles : d.titles) || []).filter(id => BY[id] && have.has(id)).slice(0, 2);
+    return sel.length ? sel : ['unset'];
+  }
+
+  const chip = (t, extra = '') => `<span class="ttl c-${t.color} ${extra}">${esc(t.name)}</span>`;
+  // プロフィールに出す（mine = 自分のプロフィール：押すと一覧が開く）
+  function html(d, mine = false) {
+    const chips = selected(d).map(id => chip(BY[id])).join('');
+    return mine ? `<button class="ttl-row" data-titles aria-label="称号を選ぶ">${chips}<span class="ttl-more">›</span></button>` : `<div class="ttl-row">${chips}</div>`;
+  }
+
+  // 称号の一覧（持っているものは光る。持っていないものは黒く塗りつぶして条件だけ見せる）
+  function openList() {
+    const d = Save.get(), have = ownedIds(d), sel = selected(d);
+    const got = LIST.filter(t => have.has(t.id)), not = LIST.filter(t => !have.has(t.id));
+    Help.show('称号', `
+      <p class="ttl-info">持っている称号をタップして飾る（2つまで・最低1つ）。<b>${got.length}</b> / ${LIST.length} 獲得</p>
+      <div class="ttl-grid">
+        ${got.map(t => {
+          const k = sel.indexOf(t.id);
+          return `<button class="ttl-item ${k >= 0 ? 'on' : ''}" data-ttl="${t.id}">${chip(t)}${k >= 0 ? `<i class="ttl-pick">${sel.length > 1 ? k + 1 : '✓'}</i>` : ''}<small>${esc(t.hint)}</small></button>`;
+        }).join('')}
+        ${not.map(t => `<div class="ttl-item locked"><span class="ttl locked">${'？'.repeat(Math.min(8, Math.max(3, [...t.name].length)))}</span><small>${esc(t.hint)}</small></div>`).join('')}
+      </div>`);
+    document.querySelectorAll('[data-ttl]').forEach(b => b.onclick = () => toggle(b.dataset.ttl));
+  }
+  function toggle(id) {
+    let sel = selected(Save.get()).slice();
+    if (sel.includes(id)) {
+      if (sel.length <= 1) return App.toast('称号は最低1つ必要です');
+      sel = sel.filter(x => x !== id);
+    } else {
+      if (sel.includes('unset')) sel = sel.filter(x => x !== 'unset');   // 「未設定」は、ほかを選んだら外れる
+      if (id === 'unset') sel = [];
+      if (sel.length >= 2) return App.toast('称号は2つまでです。外したい称号をタップしてください');
+      sel.push(id);
+    }
+    Save.setProfile({ titles: sel });
+    Sound.tap();
+    openList();
+    if (typeof App !== 'undefined' && App.refresh) App.refresh();
+  }
+  document.addEventListener('click', e => { if (e.target.closest('[data-titles]')) { Sound.tap(); openList(); } });
+
+  // ---- 新しく手に入れたらお知らせ ----
+  const SEEN = 'bon-titles-seen';
+  let seen = null;
+  function check(d) {
+    const now = owned(d).map(t => t.id);
+    if (!seen) {
+      try { seen = new Set(JSON.parse(localStorage.getItem(SEEN) || 'null') || now); } catch (e) { seen = new Set(now); }
+    }
+    const fresh = now.filter(id => !seen.has(id));
+    if (!fresh.length) return;
+    fresh.forEach(id => seen.add(id));
+    try { localStorage.setItem(SEEN, JSON.stringify([...seen])); } catch (e) {}
+    setTimeout(() => announce(fresh.map(id => BY[id])), 600);
+  }
+  function announce(list) {
+    const el = document.createElement('div');
+    el.className = 'ttl-toast';
+    el.innerHTML = `<small>称号を獲得！</small>${chip(list[0])}${list.length > 1 ? `<small>ほか ${list.length - 1} 個</small>` : ''}`;
+    el.onclick = () => { el.remove(); openList(); };
+    document.body.appendChild(el);
+    if (window.Sound) { Sound.levelUp(); Sound.kira(); }
+    setTimeout(() => el.classList.add('out'), 3600);
+    setTimeout(() => el.remove(), 4100);
+  }
+  Save.onChange(d => check(d));
+
+  return { LIST, owned, selected, html, openList, chip: id => chip(BY[id] || BY.unset) };
+})();
+
+</script>
+<script>
 // ルーム（最大6人）：作成・参加・ゲーム選択・ゲーム進行・ペナルティ・最終結果・再接続
 // 結果の計算はルームマスター（host）の端末だけが行い、ルームのデータに書き込む（他の人は書き換えられない）
 //
@@ -8820,6 +9106,7 @@ const Room = (() => {
     });
     const old = await playersRef(c).get();
     await Promise.all(old.docs.filter(d => d.id !== me).map(d => d.ref.delete().catch(() => {})));
+    Save.stat('roomsMade');   // 称号用：ルームを作った回数
     await join(c);
   }
 
@@ -9559,6 +9846,12 @@ const Room = (() => {
       resultText: res => res.order.slice(0, 3).map((i, k) => `${k + 1}着 ${i + 1}番`).join('・'),
       headBtns: () => null,
       betLabel: (k, rd) => { const [t, sel] = k.split(':'); return `${M().typeJa[t]} ${sel.split('-').map(i => Number(i) + 1).join('-')}（${M().oddsOf(k, rd.card).toFixed(1)}倍）`; },
+      // 称号用：単勝だけの1点買いで的中／賭け金の何倍になったか
+      mine(rd, pay) {
+        const keys = Object.keys(pay.bets || {});
+        if (keys.length === 1 && keys[0].startsWith('win:') && rd.res && Number(keys[0].slice(4)) === rd.res.order[0]) Save.stat('kbSingleWin');
+        if (pay.staked) Save.statMax('kbMult', pay.ret / pay.staked);
+      },
     };
   })();
 
@@ -9607,6 +9900,7 @@ const Room = (() => {
 
     return {
       name: 'チンチロ', help: 'chinchiro', showMs: 6000, defaultKey: 'bet', tableClass: 'rm-cc', stepped: true,
+      mine(rd) { const h = rd.res && rd.res.hands && rd.res.hands[me]; if (h) M().countHand(h.kind); },
       init: () => ({}),
       newRound: () => ({}),
       validKey: k => k === 'bet',
@@ -9924,8 +10218,10 @@ const Room = (() => {
     function setWatch(u) {
       if (unsubWatch) { unsubWatch(); unsubWatch = null; }
       watch = u; watchHole = null;
-      if (u) unsubWatch = secretRef(u).onSnapshot(s => { watchHole = s.exists ? s.data() : null; if (room && room.round && room.round.res) sync(room.round, null); },
-        e => { console.warn(e); App.toast('手札を見られませんでした（Firebaseのルールを更新してください）'); setWatch(null); });
+      // 見始めてすぐ読めないときだけお知らせ（次のハンドに進んで読めなくなったときは、黙って自分の視点に戻す）
+      let got = false;
+      if (u) unsubWatch = secretRef(u).onSnapshot(s => { got = true; watchHole = s.exists ? s.data() : null; if (room && room.round && room.round.res) sync(room.round, null); },
+        e => { console.warn(e); if (!got) App.toast('手札を見られませんでした（Firebaseのルールを更新してください）'); if (watch === u) setWatch(null); });
       if (room && room.round && room.round.res) sync(room.round, null);
     }
 
@@ -10218,6 +10514,13 @@ const Room = (() => {
       },
       tickShow(rd) { const e = app.querySelector('#pkLeft'); if (e && rd.res && rd.res.turn) e.textContent = Math.max(0, Math.ceil((rd.res.turnAt + TURN_MS - Date.now()) / 1000)); },
       resultText: (res, rd) => res && res.names && res.names[me] ? `あなたの役：${res.names[me]}` : 'ハンド終了',
+      // 称号用：ショーダウンまで残ったときの役・オールイン
+      mine(rd) {
+        const res = rd.res;
+        if (!res || !res.players || !res.players.includes(me)) return;
+        if (!res.folded[me] && res.names && res.names[me]) { const c = Poker.HAND_JA.indexOf(res.names[me]); if (c >= 0) Save.stat('pkHand' + c); }
+        if (res.allin && res.allin[me]) Save.stat('allin');
+      },
       headBtns: () => null,
     };
   })();
@@ -10295,12 +10598,23 @@ const Room = (() => {
       else if (!v.anim) table();
     }
 
+    // ラウンドの結果が出たとき（称号用の記録。同じラウンドは1回だけ数える）
+    function roundDone(rd) {
+      try {
+        const id = room.code + ':' + room.gid + ':' + rd.no, pay = rd.pays && rd.pays[me];
+        const joined = pay || (rd.res && rd.res.players && rd.res.players.includes(me));
+        if (!joined || !Save.statOnce('roomRounds', id)) return;
+        const tb = T();
+        if (tb.mine) tb.mine(rd, pay || {});
+      } catch (e) { console.warn(e); }
+    }
+
     // 1投ずつ進むゲーム（チンチロ）から呼ばれる
     const stepCtx = {
       refresh: () => { if (v && room) { seats(); controls(); } },
       setShown: () => {
         if (!v || v.shown) return;
-        v.shown = true; table(); seats(); controls();
+        v.shown = true; table(); seats(); controls(); roundDone(room.round);
         const pay = room.round.pays && room.round.pays[me];
         if (pay) Fx.outcome({ net: pay.net, staked: pay.staked });
       },
@@ -10396,17 +10710,25 @@ const Room = (() => {
       return `<ul class="rm-betlist">${Object.entries(v.bets).map(([k, a]) => `<li><span>${tb.betLabel(k, rd)}</span><b>${fmt(a)}</b></li>`).join('')}</ul>`;
     }
 
+    // 操作ボタンの欄を描き直す。中身が前と同じなら描き直さない
+    // （スマホでボタンを押している最中に描き直すと、タップが空振りするため）
+    const put = (el, html) => {
+      const key = html.replace(/(id="(?:bjLeft|pkLeft)">)\d+/g, '$1');
+      if (el._h === key) return false;
+      el._h = key; el.innerHTML = html;
+      return true;
+    };
     function controls() {
       const el = app.querySelector('#rmControls'), r = room, rd = r.round, rules = r.rules;
-      if (!amAlive()) { el.innerHTML = `<div class="notice">${room.order.includes(me) ? `持ち金が0になったので、このゲームは観戦です。次のゲームで ${fmt(room.startMoney)} BON に復活します（ペナルティ+1）。` : '観戦中です。次のゲームから参加できます。'}</div>${leaveBtn2()}`; bindLeave2(el); return; }
+      if (!amAlive()) { put(el, `<div class="notice">${room.order.includes(me) ? `持ち金が0になったので、このゲームは観戦です。次のゲームで ${fmt(room.startMoney)} BON に復活します（ペナルティ+1）。` : '観戦中です。次のゲームから参加できます。'}</div>${leaveBtn2()}`); bindLeave2(el); return; }
       if (rd.phase === 'bet') {
         const t = sumOf(v.bets);
         if (v.done) {
-          el.innerHTML = `<div class="rm-timer" id="rmTimer"></div>${betList()}<div class="dealing">ベット確定（${fmt(t)}）　ほかの人を待っています…</div>${leaveBtn2()}`;
+          put(el, `<div class="rm-timer" id="rmTimer"></div>${betList()}<div class="dealing">ベット確定（${fmt(t)}）　ほかの人を待っています…</div>${leaveBtn2()}`);
         } else {
           const forced = myMoney() < rules.minBet, okMin = forced ? t === myMoney() : t >= rules.minBet;
           const last = v.last && Object.keys(v.last).every(k => T().validKey(k, rd)) && sumOf(v.last) <= Math.min(myMoney(), rules.maxBet || Infinity) && sumOf(v.last) >= rules.minBet;
-          el.innerHTML = `
+          if (put(el, `
             <div class="rm-timer" id="rmTimer"></div>
             ${betList()}
             <div class="bet-amount">ベット<b>${fmt(t)}</b><small class="rm-limit">${forced ? `持ち金が最低ベット未満なので、残り全部（${fmt(myMoney())}）を賭けます` : `最低 ${fmt(rules.minBet)}${rules.maxBet ? `・最大 ${fmt(rules.maxBet)}` : ''}`}</small></div>
@@ -10417,7 +10739,7 @@ const Room = (() => {
               <button class="btn ghost" id="rebet" ${last && !t ? '' : 'disabled'}>前回と同じ</button>
               <button class="btn" id="confirm" ${okMin ? '' : 'disabled'}>${forced ? (okMin ? 'オールイン確定' : 'あと ' + fmt(myMoney() - t)) : t ? (okMin ? 'ベット確定' : '最低に足りません') : 'チップを置く'}</button>
             </div>
-            <p class="hint rm-auto">時間切れのときは、置いたチップ（足りなければ最低ベット ${fmt(Math.min(myMoney(), rules.minBet))}）で自動参加します</p>${leaveBtn2()}`;
+            <p class="hint rm-auto">時間切れのときは、置いたチップ（足りなければ最低ベット ${fmt(Math.min(myMoney(), rules.minBet))}）で自動参加します</p>${leaveBtn2()}`)) {
           el.querySelectorAll('[data-chip]').forEach(b => b.onclick = () => { v.chip = Number(b.dataset.chip); Sound.tap(); controls(); });
           el.querySelector('#undo').onclick = () => { const [k, a] = v.undo.pop(); v.bets[k] -= a; if (v.bets[k] <= 0) delete v.bets[k]; Sound.tap(); table(); controls(); send(false); };
           el.querySelector('#clear').onclick = () => { v.bets = {}; v.undo = []; Sound.tap(); table(); controls(); send(false); };
@@ -10426,19 +10748,19 @@ const Room = (() => {
             if (t && !okMin) return App.toast(`最低ベットは ${fmt(rules.minBet)} です`);
             v.done = true; Sound.tap(); send(true); table(); controls(); seats();
           };
+          }
         }
         tick();
       } else {
         const pay = rd.pays && rd.pays[me];
         if (v.shown) {
-          el.innerHTML = `<div class="rm-result ${pay ? (pay.net > 0 ? 'win' : pay.net < 0 ? 'lose' : 'push') : ''}">
+          put(el, `<div class="rm-result ${pay ? (pay.net > 0 ? 'win' : pay.net < 0 ? 'lose' : 'push') : ''}">
             <small>${T().resultText(rd.res, rd)}</small>
             <b>${pay ? (pay.net > 0 ? '+' : '') + fmt(pay.net) + ' BON' : '不参加'}</b></div>
-            ${allBets()}<div class="dealing">次のラウンドまでお待ちください…</div>${leaveBtn2()}`;
+            ${allBets()}<div class="dealing">次のラウンドまでお待ちください…</div>${leaveBtn2()}`);
         } else if (T().showControls) {
-          el.innerHTML = `${T().showControls(rd)}${leaveBtn2()}`;
-          T().bindControls(el, rd);
-        } else el.innerHTML = `${allBets() || betList()}<div class="dealing">${{ baccarat: 'DEALING…', roulette: 'NO MORE BETS', keiba: 'レース中…' }[room.game] || '…'}</div>${leaveBtn2()}`;
+          if (put(el, `${T().showControls(rd)}${leaveBtn2()}`)) T().bindControls(el, rd);
+        } else put(el, `${allBets() || betList()}<div class="dealing">${{ baccarat: 'DEALING…', roulette: 'NO MORE BETS', keiba: 'レース中…' }[room.game] || '…'}</div>${leaveBtn2()}`);
       }
       bindLeave2(el);
     }
@@ -10461,13 +10783,13 @@ const Room = (() => {
       const tb = T();
       const late = Date.now() - rd.shownAt > Math.min(9000, tb.showMs * 0.4);
       v.shown = false;
-      if (late) { if (tb.late) tb.late(rd.res); v.shown = true; table(); seats(); controls(); return; }
+      if (late) { if (tb.late) tb.late(rd.res); v.shown = true; table(); seats(); controls(); roundDone(rd); return; }
       v.anim = true; table(); controls();
       const alive = () => v && v.animKey === key && app.querySelector('#rmTable');
       await tb.animate(rd.res, alive);
       if (!alive()) return;
       v.anim = false; v.shown = true;
-      table(); seats(); controls();
+      table(); seats(); controls(); roundDone(rd);
       const pay = rd.pays && rd.pays[me];
       if (pay) Fx.outcome({ net: pay.net, staked: pay.staked });
     }
@@ -10807,12 +11129,6 @@ const App = (() => {
   let current = null;
   Cloud.onChange(() => { if (current) current(); });
   const track = fn => { current = fn; };
-  const titlesOf = d => {
-    const t = [];
-    if (((d.plays || {}).poker || 0) >= 100) t.push('ポーカーマスター');
-    return t;
-  };
-  const titleChips = d => { const t = titlesOf(d); return t.length ? t.map(x => `<span class="title-chip">${x}</span>`).join('') : '<span class="title-chip empty">称号はまだありません</span>'; };
   const playsOf = d => Object.values(d.plays || {}).reduce((a, b) => a + b, 0);
 
   // ルームの戦績
@@ -10839,7 +11155,7 @@ const App = (() => {
             <button class="code copyable" data-copy="${p.code}" aria-label="フレンドコードをコピー">${p.code}<span class="copy-ic">📋 コピー</span></button>
           </div>
         </div>
-        <div class="titles">${titleChips(d)}</div>
+        <div class="titles">${Titles.html(d, true)}</div>
         <dl class="kv">
           <div><dt>現在の所持金</dt><dd>${fmt(d.balance)} BON</dd></div>
           <div><dt>最大所持金</dt><dd>${fmt(d.maxBalance)} BON</dd></div>
@@ -10945,7 +11261,7 @@ const App = (() => {
     Help.show(esc(f.name || 'プロフィール'), `
       <div class="profile-top" style="margin:10px 0 12px">${avatar(f, 72)}
         <div class="profile-name"><b>${esc(f.name || '？')}</b><small>フレンドコード</small><span class="code">${esc(f.code || '')}</span></div></div>
-      <div class="titles">${titleChips(f)}</div>
+      <div class="titles">${Titles.html(f)}</div>
       <dl class="kv">
         <div><dt>現在の所持金</dt><dd>${fmt(f.balance || 0)} BON</dd></div>
         <div><dt>最大所持金</dt><dd>${fmt(f.maxBalance || 0)} BON</dd></div>
@@ -11092,10 +11408,10 @@ const App = (() => {
           <span>全画面で遊ぶ（アドレスバーを隠す）</span>
           <input type="checkbox" id="fullSw" ${st.fullscreen ? 'checked' : ''}>
         </label>` : ''}
-        <label class="switch-row">
-          <span>勝ったときに振動する</span>
+        ${'vibrate' in navigator ? `<label class="switch-row">
+          <span>振動する（Androidのスマホのみ）</span>
           <input type="checkbox" id="vib" ${st.vibrate ? 'checked' : ''}>
-        </label>
+        </label>` : ''}
       </div>
       <div class="sheet">
         <h3>アプリとして使う</h3>
@@ -11116,7 +11432,8 @@ const App = (() => {
     };
     bind('bgm', 'bgm'); bind('se', 'se');
     app.querySelector('#bgm').addEventListener('input', () => Bgm.refreshVolume());
-    app.querySelector('#vib').onchange = e => Save.setSetting('vibrate', e.target.checked);
+    const vb = app.querySelector('#vib');
+    if (vb) vb.onchange = e => Save.setSetting('vibrate', e.target.checked);
     const fs = app.querySelector('#fullSw');
     if (fs) fs.onchange = e => {
       Save.setSetting('fullscreen', e.target.checked);
@@ -11235,7 +11552,7 @@ const App = (() => {
   boot();
   Cloud.init();
 
-  return { toast, menu, solo, screen, avatar, esc, ask, loginBox, copy, room, profile };
+  return { toast, menu, solo, screen, avatar, esc, ask, loginBox, copy, room, profile, refresh: () => { if (current) current(); } };
 })();
 
 </script>
